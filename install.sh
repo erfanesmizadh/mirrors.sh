@@ -4,7 +4,7 @@ set -euo pipefail
 UBUNTU_CODENAME="jammy"
 
 MIRRORS=(
-  # ================= 🇮🇷 IRAN =================
+  # 🇮🇷 IRAN
   "https://ir.archive.ubuntu.com/ubuntu/"
   "https://mirror.iranserver.com/ubuntu/"
   "http://mirror.iranserver.com/ubuntu/"
@@ -26,9 +26,9 @@ MIRRORS=(
   "https://mirrors.pardisco.co/ubuntu/"
   "http://mirror.ariadata.co/ubuntu/"
   "http://mirror.sbu.ac.ir/ubuntu/"
-  "http://mirror.kpfu.ru/ubuntu/" # reachable from IR
+  "http://mirror.kpfu.ru/ubuntu/"
 
-  # ================= 🌍 OFFICIAL =================
+  # 🌍 GLOBAL
   "https://archive.ubuntu.com/ubuntu/"
   "http://archive.ubuntu.com/ubuntu/"
   "http://security.ubuntu.com/ubuntu/"
@@ -36,7 +36,7 @@ MIRRORS=(
   "https://ftp.ubuntu.com/ubuntu/"
   "http://ftp.ubuntu.com/ubuntu/"
 
-  # ================= 🇩🇪 GERMANY =================
+  # 🇩🇪 GERMANY
   "http://ftp.tu-chemnitz.de/pub/linux/ubuntu/"
   "http://ftp.uni-stuttgart.de/ubuntu/"
   "http://ftp.halifax.rwth-aachen.de/ubuntu/"
@@ -47,24 +47,24 @@ MIRRORS=(
   "http://mirror.kumi.systems/ubuntu/"
   "http://mirror.init7.net/ubuntu/"
 
-  # ================= 🇫🇷 FRANCE =================
+  # 🇫🇷 FRANCE
   "http://mirror.in2p3.fr/pub/linux/ubuntu/"
   "http://ubuntu.mirrors.ovh.net/ubuntu/"
   "http://mirror.ubuntu.ikoula.com/ubuntu/"
   "http://mirror.pnl.gov/ubuntu/"
 
-  # ================= 🇳🇱 NETHERLANDS =================
+  # 🇳🇱 NETHERLANDS
   "http://ftp.nluug.nl/os/Linux/distr/ubuntu/"
   "http://mirror.ams1.nl.leaseweb.net/ubuntu/"
   "http://mirror.serverion.com/ubuntu/"
   "http://mirror.i3d.net/pub/ubuntu/"
 
-  # ================= 🇬🇧 UK =================
+  # 🇬🇧 UK
   "http://mirror.bytemark.co.uk/ubuntu/"
   "http://mirror.ox.ac.uk/sites/archive.ubuntu.com/ubuntu/"
   "http://ubuntu.mirror.anlx.net/ubuntu/"
 
-  # ================= 🇺🇸 USA =================
+  # 🇺🇸 USA
   "http://mirror.math.princeton.edu/pub/ubuntu/"
   "http://mirror.csclub.uwaterloo.ca/ubuntu/"
   "http://ubuntu.mirrors.tds.net/ubuntu/"
@@ -75,24 +75,23 @@ MIRRORS=(
   "http://mirror.us.leaseweb.net/ubuntu/"
   "http://mirror.clarkson.edu/ubuntu/"
 
-  # ================= 🇨🇦 CANADA =================
-  "http://mirror.csclub.uwaterloo.ca/ubuntu/"
+  # 🇨🇦 CANADA
   "http://mirror.its.dal.ca/ubuntu/"
-  "http://mirror.netcologne.de/ubuntu/"
+  "http://mirror.csclub.uwaterloo.ca/ubuntu/"
 
-  # ================= 🇯🇵 JAPAN =================
+  # 🇯🇵 JAPAN
   "http://ftp.jaist.ac.jp/pub/Linux/ubuntu/"
   "http://ftp.tsukuba.wide.ad.jp/Linux/ubuntu/"
   "http://mirror.riken.jp/Linux/ubuntu/"
   "http://ubuntu-mirror.kagoya.net/ubuntu/"
 
-  # ================= 🇨🇳 CHINA =================
+  # 🇨🇳 CHINA
   "https://mirrors.tuna.tsinghua.edu.cn/ubuntu/"
   "https://mirrors.aliyun.com/ubuntu/"
   "https://mirrors.ustc.edu.cn/ubuntu/"
   "https://mirrors.huaweicloud.com/ubuntu/"
 
-  # ================= 🇸🇬 SINGAPORE =================
+  # 🇸🇬 SINGAPORE
   "http://mirror.nus.edu.sg/ubuntu/"
   "http://download.nus.edu.sg/mirror/ubuntu/"
 )
