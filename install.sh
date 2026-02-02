@@ -3,6 +3,12 @@ set -euo pipefail
 
 UBUNTU_CODENAME="jammy"
 
+echo "📌 Ubuntu Mirror Selector 22.04 (Jammy)"
+echo "این اسکریپت میرورهای ایرانی و جهانی را بررسی کرده و سریع‌ترین یا اولین میرور سالم را انتخاب می‌کند."
+echo "فایل /etc/apt/sources.list شما به صورت خودکار آپدیت می‌شود."
+echo ""
+
+# ==================== لیست میرورها ====================
 MIRRORS=(
   # 🇮🇷 IRAN
   "https://ir.archive.ubuntu.com/ubuntu/"
@@ -35,8 +41,6 @@ MIRRORS=(
   "https://security.ubuntu.com/ubuntu/"
   "https://ftp.ubuntu.com/ubuntu/"
   "http://ftp.ubuntu.com/ubuntu/"
-
-  # 🇩🇪 GERMANY
   "http://ftp.tu-chemnitz.de/pub/linux/ubuntu/"
   "http://ftp.uni-stuttgart.de/ubuntu/"
   "http://ftp.halifax.rwth-aachen.de/ubuntu/"
@@ -46,25 +50,17 @@ MIRRORS=(
   "http://ftp.fau.de/ubuntu/"
   "http://mirror.kumi.systems/ubuntu/"
   "http://mirror.init7.net/ubuntu/"
-
-  # 🇫🇷 FRANCE
   "http://mirror.in2p3.fr/pub/linux/ubuntu/"
   "http://ubuntu.mirrors.ovh.net/ubuntu/"
   "http://mirror.ubuntu.ikoula.com/ubuntu/"
   "http://mirror.pnl.gov/ubuntu/"
-
-  # 🇳🇱 NETHERLANDS
   "http://ftp.nluug.nl/os/Linux/distr/ubuntu/"
   "http://mirror.ams1.nl.leaseweb.net/ubuntu/"
   "http://mirror.serverion.com/ubuntu/"
   "http://mirror.i3d.net/pub/ubuntu/"
-
-  # 🇬🇧 UK
   "http://mirror.bytemark.co.uk/ubuntu/"
   "http://mirror.ox.ac.uk/sites/archive.ubuntu.com/ubuntu/"
   "http://ubuntu.mirror.anlx.net/ubuntu/"
-
-  # 🇺🇸 USA
   "http://mirror.math.princeton.edu/pub/ubuntu/"
   "http://mirror.csclub.uwaterloo.ca/ubuntu/"
   "http://ubuntu.mirrors.tds.net/ubuntu/"
@@ -74,52 +70,44 @@ MIRRORS=(
   "http://mirror.syr.edu/pub/ubuntu/"
   "http://mirror.us.leaseweb.net/ubuntu/"
   "http://mirror.clarkson.edu/ubuntu/"
-
-  # 🇨🇦 CANADA
   "http://mirror.its.dal.ca/ubuntu/"
-  "http://mirror.csclub.uwaterloo.ca/ubuntu/"
-
-  # 🇯🇵 JAPAN
   "http://ftp.jaist.ac.jp/pub/Linux/ubuntu/"
   "http://ftp.tsukuba.wide.ad.jp/Linux/ubuntu/"
   "http://mirror.riken.jp/Linux/ubuntu/"
   "http://ubuntu-mirror.kagoya.net/ubuntu/"
-
-  # 🇨🇳 CHINA
   "https://mirrors.tuna.tsinghua.edu.cn/ubuntu/"
   "https://mirrors.aliyun.com/ubuntu/"
   "https://mirrors.ustc.edu.cn/ubuntu/"
   "https://mirrors.huaweicloud.com/ubuntu/"
-
-  # 🇸🇬 SINGAPORE
   "http://mirror.nus.edu.sg/ubuntu/"
   "http://download.nus.edu.sg/mirror/ubuntu/"
 )
 
-echo "🔍 اسکن میرورهای Ubuntu 22.04 ($UBUNTU_CODENAME)..."
-echo ""
-
+echo "🔍 شروع بررسی میرورها..."
 WORKING_MIRROR=""
 
+# ==================== بررسی و انتخاب میرور ====================
 for MIRROR in "${MIRRORS[@]}"; do
   echo -n "⏳ تست $MIRROR ... "
   if curl -fs --max-time 5 "${MIRROR}dists/${UBUNTU_CODENAME}/Release" >/dev/null; then
-    echo "✅ OK"
+    echo "✅ در دسترس"
     WORKING_MIRROR="$MIRROR"
     break
   else
-    echo "❌ Fail"
+    echo "❌ در دسترس نیست"
   fi
 done
 
+# ==================== خطایابی ====================
 if [[ -z "$WORKING_MIRROR" ]]; then
   echo ""
-  echo "🚫 هیچ میروری در دسترس نیست"
+  echo "🚫 هیچ میروری در دسترس نیست. اتصال اینترنت یا فایروال را بررسی کنید."
   exit 1
 fi
 
+# ==================== تنظیم /etc/apt/sources.list ====================
 echo ""
-echo "🛠 تنظیم /etc/apt/sources.list با میرور:"
+echo "🛠 فایل /etc/apt/sources.list شما با میرور زیر به‌روزرسانی می‌شود:"
 echo "👉 $WORKING_MIRROR"
 echo ""
 
@@ -130,6 +118,10 @@ deb $WORKING_MIRROR $UBUNTU_CODENAME-backports main restricted universe multiver
 deb $WORKING_MIRROR $UBUNTU_CODENAME-security main restricted universe multiverse
 EOF
 
-echo "✅ انجام شد"
-echo "📦 حالا اجرا کن:"
+echo ""
+echo "✅ انجام شد!"
+echo "📦 برای بروزرسانی بسته‌ها دستور زیر را اجرا کنید:"
 echo "sudo apt update"
+echo ""
+echo "ℹ️ توضیح: این اسکریپت سریع‌ترین میرور سالم را پیدا کرده و sources.list را جایگزین می‌کند."
+echo "اگر می‌خواید نسخه بعدی Ubuntu را اضافه کنید، کافی است UBUNTU_CODENAME را تغییر دهید."
