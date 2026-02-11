@@ -1,36 +1,39 @@
-# Ubuntu Mirror Auto Selector 🇮🇷🌍
+# 🚀 Ubuntu Ultimate Mirror Selector
 
-![Language](https://img.shields.io/badge/language-Bash-blue)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-brightgreen)
-![Status](https://img.shields.io/badge/status-Active-green)
-
-اسکریپت Bash برای انتخاب خودکار سریع‌ترین میرور Ubuntu  
-شامل میرورهای **ایرانی و خارجی** – مناسب VPS ایران و سرورهای خارجی
+یک اسکریپت Bash حرفه‌ای برای انتخاب سریع‌ترین Ubuntu Mirror با تست Ping و انتخاب دستی.
 
 ---
 
-## ✨ ویژگی‌ها
-- اسکن بیش از 100 میرور ایرانی و جهانی  
-- اولویت با میرورهای ایرانی  
-- تست واقعی فایل `Release`  
-- آپدیت خودکار `/etc/apt/sources.list`  
-- سازگار با Ubuntu 22.04 (Jammy)  
-- نمایش توضیحات مرحله به مرحله هنگام اجرا  
-- مناسب VPS و سرورهای اختصاصی  
+## ✨ Features
+
+✅ تست Ping تمام mirror ها  
+✅ نمایش latency واقعی (ms)  
+✅ نمایش فقط mirror های در دسترس  
+✅ انتخاب دستی mirror با شماره  
+✅ پشتیبانی از mirror های:
+
+- 🇮🇷 ایران (IranServer, Asiatech, Shatel, Sindad, etc)
+- ☁️ CDN (Cloudflare, ArvanCloud)
+- 🌍 Global Fast Mirrors (Leaseweb, OVH, Kernel, Tsinghua, HuaweiCloud, etc)
+
+✅ جایگزینی خودکار `/etc/apt/sources.list`
 
 ---
 
-## 🚀 نصب و اجرا
+## 📦 Requirements
 
-### روش 1: اجرای مستقیم از گیت‌هاب (ساده‌ترین روش)
-برای اجرای مستقیم اسکریپت کافی است دستور زیر را در ترمینال خود کپی و اجرا کنید:
+- Ubuntu 22.04 (Jammy)
+- bash
+- curl
+- ping
+
+---
+
+## ⚡ Installation
+
+دانلود و اجرا:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/erfanesmizadh/mirrors.sh/main/install.sh)
-
-
-
-git clone https://github.com/erfanesmizadh/mirrors.sh.git
-cd mirrors.sh
+wget https://raw.githubusercontent.com/YOUR_REPO/install.sh
 chmod +x install.sh
 sudo ./install.sh
