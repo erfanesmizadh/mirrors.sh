@@ -3,14 +3,14 @@ set -euo pipefail
 
 UBUNTU_CODENAME="jammy"
 
-echo "📌 Ubuntu Ultimate Mirror Selector"
+echo "📌 Ubuntu Ultimate Mirror Selector (Ping + MS)"
 echo ""
 
 # ==================== FULL MIRROR LIST ====================
 
 MIRRORS=(
 
-# 🇮🇷 IRAN MIRRORS
+# 🇮🇷 IRAN
 "https://ir.archive.ubuntu.com/ubuntu/"
 "https://mirror.iranserver.com/ubuntu/"
 "http://mirror.iranserver.com/ubuntu/"
@@ -27,11 +27,11 @@ MIRRORS=(
 "https://mirrors.pardisco.co/ubuntu/"
 "http://mirror.sbu.ac.ir/ubuntu/"
 
-# ☁️ CDN / CLOUD
-"https://cloudflare.cdn.ubuntu.com/ubuntu/"   # Cloudflare CDN
-"https://mirror.arvancloud.ir/ubuntu/"        # ArvanCloud
+# ☁️ CDN
+"https://cloudflare.cdn.ubuntu.com/ubuntu/"
+"https://mirror.arvancloud.ir/ubuntu/"
 
-# 🌍 GLOBAL FAST MIRRORS
+# 🌍 GLOBAL
 "https://archive.ubuntu.com/ubuntu/"
 "http://archive.ubuntu.com/ubuntu/"
 "http://security.ubuntu.com/ubuntu/"
@@ -59,17 +59,25 @@ echo "🔍 تست Ping میرورها..."
 echo ""
 
 AVAILABLE_MIRRORS=()
+PING_RESULTS=()
 
-# ==================== PING TEST ====================
+# ==================== PING TEST WITH MS ====================
 
 for MIRROR in "${MIRRORS[@]}"; do
 
     DOMAIN=$(echo "$MIRROR" | awk -F/ '{print $3}')
     echo -n "⏳ Ping $DOMAIN ... "
 
-    if ping -c1 -W1 "$DOMAIN" >/dev/null 2>&1; then
-        echo "✅ OK"
+    PING_OUTPUT=$(ping -c1 -W1 "$DOMAIN" 2>/dev/null || true)
+
+    if echo "$PING_OUTPUT" | grep -q "time="; then
+
+        MS=$(echo "$PING_OUTPUT" | grep 'time=' | sed -E 's/.*time=([0-9\.]+).*/\1/')
+        echo "✅ OK (${MS} ms)"
+
         AVAILABLE_MIRRORS+=("$MIRROR")
+        PING_RESULTS+=("$MS")
+
     else
         echo "❌ Fail"
     fi
@@ -88,10 +96,9 @@ echo ""
 echo "📋 Mirror های قابل انتخاب:"
 echo ""
 
-INDEX=1
-for MIRROR in "${AVAILABLE_MIRRORS[@]}"; do
-    echo "$INDEX) $MIRROR"
-    ((INDEX++))
+for i in "${!AVAILABLE_MIRRORS[@]}"; do
+    INDEX=$((i+1))
+    echo "$INDEX) ${AVAILABLE_MIRRORS[$i]}   (${PING_RESULTS[$i]} ms)"
 done
 
 echo ""
@@ -118,6 +125,6 @@ deb $WORKING_MIRROR $UBUNTU_CODENAME-security main restricted universe multivers
 EOF
 
 echo ""
-echo "✅ sources.list آپدیت شد."
+echo "✅ sources.list آپدیت شد 👍"
 echo "📦 اجرا کنید:"
 echo "sudo apt update"
