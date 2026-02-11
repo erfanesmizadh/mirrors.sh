@@ -34,6 +34,6 @@
 دانلود و اجرا:
 
 ```bash
-wget https://raw.githubusercontent.com/YOUR_REPO/install.sh
+wget https://raw.githubusercontent.com/erfanesmizadh/install.sh
 chmod +x install.sh
 sudo ./install.sh
