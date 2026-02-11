@@ -1,130 +1,150 @@
 #!/usr/bin/env bash
-set -euo pipefail
+
+set -e
 
 UBUNTU_CODENAME="jammy"
 
-echo "📌 Ubuntu Ultimate Mirror Selector (Ping + MS)"
+echo "🔥 NETWORK BOOSTER GOD MODE MAX++"
 echo ""
 
-# ==================== FULL MIRROR LIST ====================
+####################################
+# MIRROR MASTER LIST (FULL GLOBAL)
+####################################
 
 MIRRORS=(
 
 # 🇮🇷 IRAN
-"https://ir.archive.ubuntu.com/ubuntu/"
-"https://mirror.iranserver.com/ubuntu/"
-"http://mirror.iranserver.com/ubuntu/"
-"https://ubuntu.shatel.ir/ubuntu/"
-"http://mirror.asiatech.ir/ubuntu/"
-"https://archive.ubuntu.petiak.ir/ubuntu/"
-"https://ir.ubuntu.sindad.cloud/ubuntu/"
-"http://linuxmirrors.ir/pub/ubuntu/"
-"http://repo.iut.ac.ir/repo/ubuntu/"
-"http://mirrors.sharif.ir/ubuntu/"
-"http://mirror.ut.ac.ir/ubuntu/"
-"http://mirror.faraso.org/ubuntu/"
-"https://mirror.rasanegar.com/ubuntu/"
-"https://mirrors.pardisco.co/ubuntu/"
-"http://mirror.sbu.ac.ir/ubuntu/"
+https://ir.archive.ubuntu.com/ubuntu/
+https://mirror.iranserver.com/ubuntu/
+http://mirror.asiatech.ir/ubuntu/
+https://ubuntu.shatel.ir/ubuntu/
+https://ir.ubuntu.sindad.cloud/ubuntu/
+http://mirrors.sharif.ir/ubuntu/
+http://mirror.ut.ac.ir/ubuntu/
+https://mirror.rasanegar.com/ubuntu/
+https://mirror.pardisco.co/ubuntu/
 
-# ☁️ CDN
-"https://cloudflare.cdn.ubuntu.com/ubuntu/"
-"https://mirror.arvancloud.ir/ubuntu/"
+# CDN
+https://cloudflare.cdn.ubuntu.com/ubuntu/
+https://mirror.arvancloud.ir/ubuntu/
 
-# 🌍 GLOBAL
-"https://archive.ubuntu.com/ubuntu/"
-"http://archive.ubuntu.com/ubuntu/"
-"http://security.ubuntu.com/ubuntu/"
-"https://security.ubuntu.com/ubuntu/"
-"http://mirror.ams1.nl.leaseweb.net/ubuntu/"
-"http://mirror.serverion.com/ubuntu/"
-"http://mirror.i3d.net/pub/ubuntu/"
-"http://ftp.uni-stuttgart.de/ubuntu/"
-"http://mirror.netcologne.de/ubuntu/"
-"http://mirrors.kernel.org/ubuntu/"
-"http://ubuntu.mirrors.ovh.net/ubuntu/"
-"http://mirror.checkdomain.de/ubuntu/"
-"http://ftp.fau.de/ubuntu/"
-"http://mirror.init7.net/ubuntu/"
-"http://mirror.in2p3.fr/pub/linux/ubuntu/"
-"https://mirrors.tuna.tsinghua.edu.cn/ubuntu/"
-"https://mirrors.aliyun.com/ubuntu/"
-"https://mirrors.ustc.edu.cn/ubuntu/"
-"https://mirrors.huaweicloud.com/ubuntu/"
-"http://mirror.riken.jp/Linux/ubuntu/"
-"http://ftp.jaist.ac.jp/pub/Linux/ubuntu/"
+# EUROPE FAST
+http://mirror.i3d.net/pub/ubuntu/
+http://mirror.ams1.nl.leaseweb.net/ubuntu/
+http://mirror.serverion.com/ubuntu/
+http://mirror.netcologne.de/ubuntu/
+http://ftp.fau.de/ubuntu/
+http://mirror.init7.net/ubuntu/
+http://ftp.uni-stuttgart.de/ubuntu/
+http://ubuntu.mirrors.ovh.net/ubuntu/
+http://mirror.checkdomain.de/ubuntu/
+
+# GLOBAL
+https://archive.ubuntu.com/ubuntu/
+http://mirrors.kernel.org/ubuntu/
+http://mirror.pnl.gov/ubuntu/
+http://mirror.math.princeton.edu/pub/ubuntu/
+http://mirror.csclub.uwaterloo.ca/ubuntu/
+http://mirror.clarkson.edu/ubuntu/
+http://mirror.its.dal.ca/ubuntu/
+
+# ASIA
+https://mirrors.tuna.tsinghua.edu.cn/ubuntu/
+https://mirrors.aliyun.com/ubuntu/
+https://mirrors.ustc.edu.cn/ubuntu/
+https://mirrors.huaweicloud.com/ubuntu/
+http://mirror.riken.jp/Linux/ubuntu/
+http://ftp.jaist.ac.jp/pub/Linux/ubuntu/
+
 )
 
-echo "🔍 تست Ping میرورها..."
-echo ""
+####################################
+# DNS MASTER LIST (FULL)
+####################################
 
-AVAILABLE_MIRRORS=()
-PING_RESULTS=()
+DNS_LIST=(
 
-# ==================== PING TEST WITH MS ====================
+# 🇮🇷 IRAN
+178.22.122.100
+185.51.200.2
+194.225.70.26
+10.202.10.10
+185.55.226.26
 
-for MIRROR in "${MIRRORS[@]}"; do
+# GLOBAL FAST
+1.1.1.1
+1.0.0.1
+8.8.8.8
+8.8.4.4
+9.9.9.9
+149.112.112.112
+94.140.14.14
+94.140.15.15
+76.76.2.0
+208.67.222.222
+208.67.220.220
+185.222.222.222
+45.90.28.0
+45.90.30.0
 
-    DOMAIN=$(echo "$MIRROR" | awk -F/ '{print $3}')
-    echo -n "⏳ Ping $DOMAIN ... "
+)
 
-    PING_OUTPUT=$(ping -c1 -W1 "$DOMAIN" 2>/dev/null || true)
+####################################
+# FAST PING FUNCTION
+####################################
 
-    if echo "$PING_OUTPUT" | grep -q "time="; then
+ping_test() {
+ping -c1 -W1 $1 2>/dev/null | grep time= | sed -E 's/.*time=([0-9\.]+).*/\1/'
+}
 
-        MS=$(echo "$PING_OUTPUT" | grep 'time=' | sed -E 's/.*time=([0-9\.]+).*/\1/')
-        echo "✅ OK (${MS} ms)"
+####################################
+# MIRROR SCAN
+####################################
 
-        AVAILABLE_MIRRORS+=("$MIRROR")
-        PING_RESULTS+=("$MS")
+echo "⚡ Scanning Mirrors..."
 
-    else
-        echo "❌ Fail"
-    fi
+RESULTS=$(for M in "${MIRRORS[@]}"; do
+DOMAIN=$(echo $M | awk -F/ '{print $3}')
+MS=$(ping_test $DOMAIN)
+[ ! -z "$MS" ] && echo "$MS|$M"
+done | sort -n)
 
-done
+FASTEST=$(echo "$RESULTS" | head -n1 | cut -d'|' -f2)
 
-# ==================== CHECK ====================
-
-if [ ${#AVAILABLE_MIRRORS[@]} -eq 0 ]; then
-    echo ""
-    echo "🚫 هیچ mirror در دسترس نیست."
-    exit 1
-fi
-
-echo ""
-echo "📋 Mirror های قابل انتخاب:"
-echo ""
-
-for i in "${!AVAILABLE_MIRRORS[@]}"; do
-    INDEX=$((i+1))
-    echo "$INDEX) ${AVAILABLE_MIRRORS[$i]}   (${PING_RESULTS[$i]} ms)"
-done
-
-echo ""
-read -p "👉 شماره mirror را انتخاب کنید: " CHOICE
-
-if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || [ "$CHOICE" -lt 1 ] || [ "$CHOICE" -gt ${#AVAILABLE_MIRRORS[@]} ]; then
-    echo "❌ انتخاب نامعتبر."
-    exit 1
-fi
-
-WORKING_MIRROR=${AVAILABLE_MIRRORS[$((CHOICE-1))]}
-
-echo ""
-echo "✅ Mirror انتخاب شده:"
-echo "$WORKING_MIRROR"
-
-# ==================== UPDATE SOURCES ====================
+echo "🔥 Fastest Mirror:"
+echo "$FASTEST"
 
 sudo tee /etc/apt/sources.list >/dev/null <<EOF
-deb $WORKING_MIRROR $UBUNTU_CODENAME main restricted universe multiverse
-deb $WORKING_MIRROR $UBUNTU_CODENAME-updates main restricted universe multiverse
-deb $WORKING_MIRROR $UBUNTU_CODENAME-backports main restricted universe multiverse
-deb $WORKING_MIRROR $UBUNTU_CODENAME-security main restricted universe multiverse
+deb $FASTEST $UBUNTU_CODENAME main restricted universe multiverse
+deb $FASTEST $UBUNTU_CODENAME-updates main restricted universe multiverse
+deb $FASTEST $UBUNTU_CODENAME-security main restricted universe multiverse
 EOF
 
+####################################
+# DNS SCAN
+####################################
+
 echo ""
-echo "✅ sources.list آپدیت شد 👍"
-echo "📦 اجرا کنید:"
-echo "sudo apt update"
+echo "⚡ Scanning DNS..."
+
+DNS_SORT=$(for D in "${DNS_LIST[@]}"; do
+MS=$(ping_test $D)
+[ ! -z "$MS" ] && echo "$MS|$D"
+done | sort -n)
+
+FASTEST_DNS=$(echo "$DNS_SORT" | head -n1 | cut -d'|' -f2)
+
+echo "🔥 Fastest DNS: $FASTEST_DNS"
+
+echo "nameserver $FASTEST_DNS" | sudo tee /etc/resolv.conf >/dev/null
+
+####################################
+# APT BOOST
+####################################
+
+echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
+echo 'Acquire::http::Pipeline-Depth "5";' | sudo tee /etc/apt/apt.conf.d/80-pipeline
+
+echo ""
+echo "😈 GOD MODE MAX++ COMPLETE"
+echo "Run: sudo apt update"
