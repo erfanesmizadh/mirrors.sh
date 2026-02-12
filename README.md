@@ -34,6 +34,6 @@
 دانلود و اجرا:
 
 ```bash
-wget https://raw.githubusercontent.com/erfanesmizadh/install.sh
-chmod +x install.sh
-sudo ./install.sh
+curl -fsSL https://raw.githubusercontent.com/erfanesmizadh/mirrors.sh/main/install.sh -o ~/ubuntu-mirror.sh
+chmod +x ~/ubuntu-mirror.sh
+sudo ~/ubuntu-mirror.sh
