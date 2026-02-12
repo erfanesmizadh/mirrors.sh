@@ -3,7 +3,7 @@ set -euo pipefail
 
 UBUNTU_CODENAME="jammy"
 
-echo "📌 Ubuntu Ultimate Mirror Selector (Ping + TCP + MS)"
+echo "📌 Ubuntu Ultimate Mirror Selector (Ping + MS)"
 echo ""
 
 # ==================== FULL MIRROR LIST ====================
@@ -55,47 +55,33 @@ MIRRORS=(
 "http://ftp.jaist.ac.jp/pub/Linux/ubuntu/"
 )
 
-echo "🔍 تست Ping و TCP میرورها..."
+echo "🔍 تست Ping میرورها..."
 echo ""
 
 AVAILABLE_MIRRORS=()
 PING_RESULTS=()
-TCP_RESULTS=()
 
-# ==================== PING + TCP TEST ====================
+# ==================== PING TEST WITH MS ====================
 
 for MIRROR in "${MIRRORS[@]}"; do
+
     DOMAIN=$(echo "$MIRROR" | awk -F/ '{print $3}')
     echo -n "⏳ Ping $DOMAIN ... "
+
     PING_OUTPUT=$(ping -c1 -W1 "$DOMAIN" 2>/dev/null || true)
 
     if echo "$PING_OUTPUT" | grep -q "time="; then
+
         MS=$(echo "$PING_OUTPUT" | grep 'time=' | sed -E 's/.*time=([0-9\.]+).*/\1/')
-        PING_STATUS="✅ ${MS} ms"
-    else
-        PING_STATUS="❌ Fail"
-        MS="-"
-    fi
+        echo "✅ OK (${MS} ms)"
 
-    # TCP test on port 80
-    echo -n " TCP ... "
-    START=$(date +%s%3N)
-    if nc -z -w1 "$DOMAIN" 80 &>/dev/null; then
-        END=$(date +%s%3N)
-        TCP_MS=$((END-START))
-        TCP_STATUS="✅ ${TCP_MS} ms"
-    else
-        TCP_STATUS="❌ Fail"
-        TCP_MS="-"
-    fi
-
-    echo "$PING_STATUS | TCP $TCP_STATUS"
-
-    if [[ "$MS" != "-" ]]; then
         AVAILABLE_MIRRORS+=("$MIRROR")
         PING_RESULTS+=("$MS")
-        TCP_RESULTS+=("$TCP_MS")
+
+    else
+        echo "❌ Fail"
     fi
+
 done
 
 # ==================== CHECK ====================
@@ -112,7 +98,7 @@ echo ""
 
 for i in "${!AVAILABLE_MIRRORS[@]}"; do
     INDEX=$((i+1))
-    echo "$INDEX) ${AVAILABLE_MIRRORS[$i]}   Ping: ${PING_RESULTS[$i]} ms | TCP: ${TCP_RESULTS[$i]} ms"
+    echo "$INDEX) ${AVAILABLE_MIRRORS[$i]}   (${PING_RESULTS[$i]} ms)"
 done
 
 echo ""
