@@ -2,14 +2,12 @@
 set -euo pipefail
 
 UBUNTU_CODENAME="jammy"
-RESOLV_BACKUP="/etc/resolv.conf.bak.$(date +%s)"
 
-echo "=========================================="
-echo "😈 Ubuntu Ultimate Mirror + DNS Selector"
-echo "=========================================="
+echo "📌 Ubuntu Ultimate Mirror Selector (Ping + TCP + MS)"
 echo ""
 
-# ==================== MIRROR LIST ====================
+# ==================== FULL MIRROR LIST ====================
+
 MIRRORS=(
 
 # 🇮🇷 IRAN
@@ -57,130 +55,90 @@ MIRRORS=(
 "http://ftp.jaist.ac.jp/pub/Linux/ubuntu/"
 )
 
-# ==================== DNS LIST ====================
-DNS_LIST=(
-
-# 🇮🇷 IRAN
-178.22.122.100
-185.51.200.2
-194.225.70.26
-185.55.226.26
-
-# 🌍 GLOBAL FAST
-1.1.1.1
-1.0.0.1
-8.8.8.8
-8.8.4.4
-9.9.9.9
-149.112.112.112
-94.140.14.14
-94.140.15.15
-)
-
-# ==================== BACKUP DNS ====================
-if [ -f /etc/resolv.conf ]; then
-  cp /etc/resolv.conf "$RESOLV_BACKUP"
-  echo "📌 Backup DNS saved: $RESOLV_BACKUP"
-fi
-
-# ==================== HELPER ====================
-ping_test() {
-  TARGET=$1
-  ping -c1 -W1 "$TARGET" 2>/dev/null | grep time= | sed -E 's/.*time=([0-9\.]+).*/\1/' || echo ""
-}
-
-# ==================== MIRROR TEST ====================
+echo "🔍 تست Ping و TCP میرورها..."
 echo ""
-echo "⚡ Testing Mirrors..."
-AVAILABLE_MIRRORS=()
-MIRROR_MS=()
 
-for M in "${MIRRORS[@]}"; do
-  DOMAIN=$(echo "$M" | awk -F/ '{print $3}')
-  MS=$(ping_test "$DOMAIN")
-  if [ ! -z "$MS" ]; then
-    echo "✅ $M (${MS} ms)"
-    AVAILABLE_MIRRORS+=("$M")
-    MIRROR_MS+=("$MS")
-  else
-    echo "❌ $M unreachable"
-  fi
+AVAILABLE_MIRRORS=()
+PING_RESULTS=()
+TCP_RESULTS=()
+
+# ==================== PING + TCP TEST ====================
+
+for MIRROR in "${MIRRORS[@]}"; do
+    DOMAIN=$(echo "$MIRROR" | awk -F/ '{print $3}')
+    echo -n "⏳ Ping $DOMAIN ... "
+    PING_OUTPUT=$(ping -c1 -W1 "$DOMAIN" 2>/dev/null || true)
+
+    if echo "$PING_OUTPUT" | grep -q "time="; then
+        MS=$(echo "$PING_OUTPUT" | grep 'time=' | sed -E 's/.*time=([0-9\.]+).*/\1/')
+        PING_STATUS="✅ ${MS} ms"
+    else
+        PING_STATUS="❌ Fail"
+        MS="-"
+    fi
+
+    # TCP test on port 80
+    echo -n " TCP ... "
+    START=$(date +%s%3N)
+    if nc -z -w1 "$DOMAIN" 80 &>/dev/null; then
+        END=$(date +%s%3N)
+        TCP_MS=$((END-START))
+        TCP_STATUS="✅ ${TCP_MS} ms"
+    else
+        TCP_STATUS="❌ Fail"
+        TCP_MS="-"
+    fi
+
+    echo "$PING_STATUS | TCP $TCP_STATUS"
+
+    if [[ "$MS" != "-" ]]; then
+        AVAILABLE_MIRRORS+=("$MIRROR")
+        PING_RESULTS+=("$MS")
+        TCP_RESULTS+=("$TCP_MS")
+    fi
 done
+
+# ==================== CHECK ====================
 
 if [ ${#AVAILABLE_MIRRORS[@]} -eq 0 ]; then
-  echo "🚫 No mirrors reachable! Exiting..."
-  exit 1
+    echo ""
+    echo "🚫 هیچ mirror در دسترس نیست."
+    exit 1
 fi
 
 echo ""
-echo "📋 Available Mirrors:"
+echo "📋 Mirror های قابل انتخاب:"
+echo ""
+
 for i in "${!AVAILABLE_MIRRORS[@]}"; do
-  echo "$((i+1))) ${AVAILABLE_MIRRORS[$i]} (${MIRROR_MS[$i]} ms)"
+    INDEX=$((i+1))
+    echo "$INDEX) ${AVAILABLE_MIRRORS[$i]}   Ping: ${PING_RESULTS[$i]} ms | TCP: ${TCP_RESULTS[$i]} ms"
 done
 
-read -p "👉 Select Mirror: " MSEL
-if ! [[ "$MSEL" =~ ^[0-9]+$ ]] || [ "$MSEL" -lt 1 ] || [ "$MSEL" -gt ${#AVAILABLE_MIRRORS[@]} ]; then
-  echo "❌ Invalid choice. Using fastest mirror."
-  MSEL=1
+echo ""
+read -p "👉 شماره mirror را انتخاب کنید: " CHOICE
+
+if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || [ "$CHOICE" -lt 1 ] || [ "$CHOICE" -gt ${#AVAILABLE_MIRRORS[@]} ]; then
+    echo "❌ انتخاب نامعتبر."
+    exit 1
 fi
 
-SELECTED_MIRROR=${AVAILABLE_MIRRORS[$((MSEL-1))]}
+WORKING_MIRROR=${AVAILABLE_MIRRORS[$((CHOICE-1))]}
 
-# ==================== APPLY MIRROR ====================
+echo ""
+echo "✅ Mirror انتخاب شده:"
+echo "$WORKING_MIRROR"
+
+# ==================== UPDATE SOURCES ====================
+
 sudo tee /etc/apt/sources.list >/dev/null <<EOF
-deb $SELECTED_MIRROR $UBUNTU_CODENAME main restricted universe multiverse
-deb $SELECTED_MIRROR $UBUNTU_CODENAME-updates main restricted universe multiverse
-deb $SELECTED_MIRROR $UBUNTU_CODENAME-backports main restricted universe multiverse
-deb $SELECTED_MIRROR $UBUNTU_CODENAME-security main restricted universe multiverse
+deb $WORKING_MIRROR $UBUNTU_CODENAME main restricted universe multiverse
+deb $WORKING_MIRROR $UBUNTU_CODENAME-updates main restricted universe multiverse
+deb $WORKING_MIRROR $UBUNTU_CODENAME-backports main restricted universe multiverse
+deb $WORKING_MIRROR $UBUNTU_CODENAME-security main restricted universe multiverse
 EOF
 
-echo "🔥 Mirror Applied: $SELECTED_MIRROR"
-
-# ==================== DNS TEST ====================
 echo ""
-echo "⚡ Testing DNS..."
-AVAILABLE_DNS=()
-DNS_MS=()
-
-for D in "${DNS_LIST[@]}"; do
-  MS=$(ping_test "$D")
-  if [ ! -z "$MS" ]; then
-    echo "✅ $D (${MS} ms)"
-    AVAILABLE_DNS+=("$D")
-    DNS_MS+=("$MS")
-  else
-    echo "❌ $D unreachable"
-  fi
-done
-
-if [ ${#AVAILABLE_DNS[@]} -eq 0 ]; then
-  echo "🚫 No DNS reachable! Restoring backup..."
-  cp "$RESOLV_BACKUP" /etc/resolv.conf
-  exit 1
-fi
-
-echo ""
-echo "📋 Available DNS:"
-for i in "${!AVAILABLE_DNS[@]}"; do
-  echo "$((i+1))) ${AVAILABLE_DNS[$i]} (${DNS_MS[$i]} ms)"
-done
-
-read -p "👉 Select DNS: " DSEL
-if ! [[ "$DSEL" =~ ^[0-9]+$ ]] || [ "$DSEL" -lt 1 ] || [ "$DSEL" -gt ${#AVAILABLE_DNS[@]} ]; then
-  echo "❌ Invalid choice. Using fastest DNS."
-  DSEL=1
-fi
-
-SELECTED_DNS=${AVAILABLE_DNS[$((DSEL-1))]}
-
-echo "nameserver $SELECTED_DNS" | sudo tee /etc/resolv.conf >/dev/null
-
-echo "🔥 DNS Applied: $SELECTED_DNS"
-
-# ==================== APT BOOST ====================
-echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
-echo 'Acquire::http::Pipeline-Depth "5";' | sudo tee /etc/apt/apt.conf.d/80-pipeline
-
-echo ""
-echo "😈 Ultimate Mirror + DNS Selector Complete!"
-echo "Run: sudo apt update"
+echo "✅ sources.list آپدیت شد 👍"
+echo "📦 اجرا کنید:"
+echo "sudo apt update"
