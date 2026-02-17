@@ -1,39 +1,27 @@
-# 🚀 Ubuntu Ultimate Mirror Selector
+# Ubuntu GOD MODE Mirror & DNS Selector
 
-یک اسکریپت Bash حرفه‌ای برای انتخاب سریع‌ترین Ubuntu Mirror با تست Ping و انتخاب دستی.
+📌 **Ultimate Bash Script for Ubuntu 22.04+ (Jammy)**  
 
----
-
-## ✨ Features
-
-✅ تست Ping تمام mirror ها  
-✅ نمایش latency واقعی (ms)  
-✅ نمایش فقط mirror های در دسترس  
-✅ انتخاب دستی mirror با شماره  
-✅ پشتیبانی از mirror های:
-
-- 🇮🇷 ایران (IranServer, Asiatech, Shatel, Sindad, etc)
-- ☁️ CDN (Cloudflare, ArvanCloud)
-- 🌍 Global Fast Mirrors (Leaseweb, OVH, Kernel, Tsinghua, HuaweiCloud, etc)
-
-✅ جایگزینی خودکار `/etc/apt/sources.list`
+این اسکریپت به شما اجازه می‌دهد سریع‌ترین **mirror** و **دو DNS** برای سرور مجازی خود انتخاب کنید و APT را بهینه‌سازی کنید.  
 
 ---
 
-## 📦 Requirements
+## ⚡ ویژگی‌ها
 
-- Ubuntu 22.04 (Jammy)
-- bash
-- curl
-- ping
+- **Ping + TCP** برای تمامی mirror ها  
+- انتخاب **Mirror** به صورت دستی با نمایش ms  
+- انتخاب **دو DNS جداگانه** برای redundancy  
+- فعال‌سازی **APT Boost**:
+  - `Acquire::Retries "3";`
+  - `Acquire::http::Pipeline-Depth "5";`
+- ساده و امن، مناسب VPS و سرورهای cloud  
+- قابل استفاده روی Ubuntu 22.04 (Jammy) و بالاتر  
 
 ---
 
-## ⚡ Installation
+## 🛠️ نصب و اجرا
 
-دانلود و اجرا:
+1. دانلود اسکریپت:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/erfanesmizadh/mirrors.sh/main/install.sh -o ~/ubuntu-mirror.sh
-chmod +x ~/ubuntu-mirror.sh
-sudo ~/ubuntu-mirror.sh
+wget -O ~/ubuntu-godmode.sh https://raw.githubusercontent.com/erfanesmizadh/mirrors.sh/main/install.sh
