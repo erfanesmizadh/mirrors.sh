@@ -2,43 +2,63 @@
 set -euo pipefail
 
 UBUNTU_CODENAME="jammy"
-echo -e "\n📌 \033[1;36mUbuntu GOD MODE Ultra - Semi Manual\033[0m"
-echo ""
 
-# ==================== MIRRORS LIST ====================
-# فرمت: "URL|Country Emoji|Country Name"
+# ===== COLORS =====
+RED="\033[1;31m"
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+CYAN="\033[1;36m"
+RESET="\033[0m"
+
+echo -e "\n😈 ${CYAN}NETWORK BOOSTER GOD MODE PRO MAX${RESET}"
+echo -e "🚀 Mirror + DNS + TCP BBR + Speed Boost\n"
+
+# ================= MIRRORS =================
+
 MIRRORS=(
-"https://ir.archive.ubuntu.com/ubuntu/|🇮🇷|Iran"
-"https://mirror.iranserver.com/ubuntu/|🇮🇷|Iran"
-"http://mirror.iranserver.com/ubuntu/|🇮🇷|Iran"
-"https://ubuntu.shatel.ir/ubuntu/|🇮🇷|Iran"
-"http://mirror.asiatech.ir/ubuntu/|🇮🇷|Iran"
-"https://archive.ubuntu.petiak.ir/ubuntu/|🇮🇷|Iran"
-"https://ir.ubuntu.sindad.cloud/ubuntu/|🇮🇷|Iran"
-"http://linuxmirrors.ir/pub/ubuntu/|🇮🇷|Iran"
-"http://repo.iut.ac.ir/repo/ubuntu/|🇮🇷|Iran"
-"http://mirrors.sharif.ir/ubuntu/|🇮🇷|Iran"
-"http://mirror.ut.ac.ir/ubuntu/|🇮🇷|Iran"
-"http://mirror.faraso.org/ubuntu/|🇮🇷|Iran"
-"https://mirror.rasanegar.com/ubuntu/|🇮🇷|Iran"
-"https://mirrors.pardisco.co/ubuntu/|🇮🇷|Iran"
-"http://mirror.sbu.ac.ir/ubuntu/|🇮🇷|Iran"
 
-"https://cloudflare.cdn.ubuntu.com/ubuntu/|☁️|CDN"
-"https://mirror.arvancloud.ir/ubuntu/|☁️|CDN"
+# 🇮🇷 IRAN
+"https://ubuntu.pishgaman.net/ubuntu|🇮🇷"
+"http://mirror.aminidc.com/ubuntu|🇮🇷"
+"https://ubuntu.pars.host|🇮🇷"
+"https://ir.ubuntu.sindad.cloud/ubuntu|🇮🇷"
+"https://ubuntu.shatel.ir/ubuntu|🇮🇷"
+"https://ubuntu.mobinhost.com/ubuntu|🇮🇷"
+"https://mirror.iranserver.com/ubuntu|🇮🇷"
+"https://mirror.arvancloud.ir/ubuntu|🇮🇷"
+"http://ir.archive.ubuntu.com/ubuntu|🇮🇷"
+"https://ubuntu.parsvds.com/ubuntu|🇮🇷"
+"http://mirror.asiatech.ir/ubuntu|🇮🇷"
+"http://mirror.ut.ac.ir/ubuntu|🇮🇷"
+"http://mirrors.sharif.ir/ubuntu|🇮🇷"
 
-"https://archive.ubuntu.com/ubuntu/|🇺🇸|USA"
-"http://security.ubuntu.com/ubuntu/|🇺🇸|USA"
-"https://mirrors.tuna.tsinghua.edu.cn/ubuntu/|🇨🇳|China"
-"https://mirrors.aliyun.com/ubuntu/|🇨🇳|China"
-"https://mirrors.ustc.edu.cn/ubuntu/|🇨🇳|China"
-"https://mirrors.huaweicloud.com/ubuntu/|🇨🇳|China"
-"http://ftp.uni-stuttgart.de/ubuntu/|🇩🇪|Germany"
-"http://mirror.netcologne.de/ubuntu/|🇩🇪|Germany"
-"http://mirrors.kernel.org/ubuntu/|🌍|Global"
+# ☁️ CDN
+"https://cloudflare.cdn.ubuntu.com/ubuntu|☁️"
+
+# 🇳🇱 NL
+"http://mirror.ams1.nl.leaseweb.net/ubuntu|🇳🇱"
+"http://mirror.serverion.com/ubuntu|🇳🇱"
+
+# 🇺🇸 US
+"https://archive.ubuntu.com/ubuntu|🇺🇸"
+"http://security.ubuntu.com/ubuntu|🇺🇸"
+
+# 🇨🇳 CN
+"https://mirrors.tuna.tsinghua.edu.cn/ubuntu|🇨🇳"
+"https://mirrors.aliyun.com/ubuntu|🇨🇳"
+"https://mirrors.ustc.edu.cn/ubuntu|🇨🇳"
+
+# 🇯🇵 JP
+"http://ftp.jaist.ac.jp/pub/Linux/ubuntu|🇯🇵"
+"http://mirror.riken.jp/Linux/ubuntu|🇯🇵"
+
+# 🌍 GLOBAL
+"http://mirrors.kernel.org/ubuntu|🌍"
+"http://ftp.fau.de/ubuntu|🌍"
 )
 
-# ==================== DNS LIST ====================
+# ================= DNS =================
+
 DNS_LIST=(
 "178.22.122.100"
 "185.51.200.2"
@@ -48,115 +68,80 @@ DNS_LIST=(
 "8.8.4.4"
 "9.9.9.9"
 "149.112.112.112"
+"94.140.14.14"
+"94.140.15.15"
+"208.67.222.222"
+"208.67.220.220"
+"45.90.28.0"
+"45.90.30.0"
+"76.76.2.0"
+"223.5.5.5"
+"119.29.29.29"
 )
 
-# ==================== Ping + TCP Test ====================
-echo -e "\n🔍 تست Ping و TCP میرورها...\n"
+echo -e "🔍 ${YELLOW}Testing Mirrors...${RESET}\n"
+
 AVAILABLE_MIRRORS=()
-PING_RESULTS=()
-TCP_RESULTS=()
 FLAGS=()
 
 for MIR in "${MIRRORS[@]}"; do
-    URL=$(echo "$MIR" | cut -d'|' -f1)
-    FLAG=$(echo "$MIR" | cut -d'|' -f2)
-    DOMAIN=$(echo "$URL" | awk -F/ '{print $3}')
 
-    # Ping
-    PING_MS=$(ping -c1 -W1 "$DOMAIN" 2>/dev/null | grep 'time=' | sed -E 's/.*time=([0-9\.]+).*/\1/' || echo 9999)
+URL=$(echo "$MIR"|cut -d'|' -f1)
+FLAG=$(echo "$MIR"|cut -d'|' -f2)
+DOMAIN=$(echo "$URL"|awk -F/ '{print $3}')
 
-    # TCP test
-    START=$(date +%s%3N)
-    if nc -z -w1 "$DOMAIN" 80 &>/dev/null; then
-        END=$(date +%s%3N)
-        TCP_MS=$((END-START))
-    else
-        TCP_MS=9999
-    fi
+PING_MS=$(ping -c1 -W1 "$DOMAIN" 2>/dev/null | grep time= | sed -E 's/.*time=([0-9\.]+).*/\1/' || true)
 
-    if [ "$PING_MS" -lt 9999 ]; then
-        AVAILABLE_MIRRORS+=("$URL")
-        PING_RESULTS+=("$PING_MS")
-        TCP_RESULTS+=("$TCP_MS")
-        FLAGS+=("$FLAG")
-    fi
-
-    # نمایش رنگی
-    if [ "$PING_MS" -lt 50 ]; then
-        COLOR="\033[1;32m" # سبز
-    elif [ "$PING_MS" -lt 150 ]; then
-        COLOR="\033[1;33m" # زرد
-    else
-        COLOR="\033[1;31m" # قرمز
-    fi
-
-    echo -e "$FLAG $DOMAIN | Ping: $PING_MS ms | TCP: $TCP_MS ms"
-done
-
-# ==================== نمایش و انتخاب Mirror ====================
-echo -e "\n📋 Mirror های قابل انتخاب:"
-for i in "${!AVAILABLE_MIRRORS[@]}"; do
-    INDEX=$((i+1))
-    echo -e "$INDEX) ${FLAGS[$i]} ${AVAILABLE_MIRRORS[$i]} | Ping: ${PING_RESULTS[$i]} ms | TCP: ${TCP_RESULTS[$i]} ms"
-done
-
-read -p "👉 شماره Mirror را انتخاب کنید: " CHOICE
-if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || [ "$CHOICE" -lt 1 ] || [ "$CHOICE" -gt ${#AVAILABLE_MIRRORS[@]} ]; then
-    echo -e "\033[1;31m❌ انتخاب نامعتبر.\033[0m"
-    exit 1
+if [ -n "$PING_MS" ]; then
+echo -e "${GREEN}$FLAG $DOMAIN OK (${PING_MS} ms)${RESET}"
+AVAILABLE_MIRRORS+=("$URL")
+FLAGS+=("$FLAG")
+else
+echo -e "${RED}$FLAG $DOMAIN FAIL${RESET}"
 fi
+
+done
+
+echo -e "\n📋 Select Mirror:"
+for i in "${!AVAILABLE_MIRRORS[@]}"; do
+echo "$((i+1))) ${FLAGS[$i]} ${AVAILABLE_MIRRORS[$i]}"
+done
+
+read -p "👉 Mirror: " CHOICE
 WORKING_MIRROR=${AVAILABLE_MIRRORS[$((CHOICE-1))]}
 
-echo -e "\n✅ Mirror انتخاب شده: $WORKING_MIRROR"
-
-# ==================== Ping DNS ====================
-echo -e "\n🔍 تست Ping DNS ها..."
-AVAILABLE_DNS=()
-DNS_MS=()
+echo -e "\n🌐 DNS:"
 for i in "${!DNS_LIST[@]}"; do
-    IP=${DNS_LIST[$i]}
-    PING_MS=$(ping -c1 -W1 "$IP" 2>/dev/null | grep 'time=' | sed -E 's/.*time=([0-9\.]+).*/\1/' || echo 9999)
-    if [ "$PING_MS" -lt 9999 ]; then
-        AVAILABLE_DNS+=("$IP")
-        DNS_MS+=("$PING_MS")
-    fi
-    echo -e "$((i+1))) $IP | Ping: $PING_MS ms"
+echo "$((i+1))) ${DNS_LIST[$i]}"
 done
 
-# ==================== انتخاب دو DNS ====================
-read -p "👉 شماره Primary DNS را انتخاب کنید: " DNS1
-read -p "👉 شماره Secondary DNS را انتخاب کنید: " DNS2
-PRIMARY_DNS=${AVAILABLE_DNS[$((DNS1-1))]}
-SECONDARY_DNS=${AVAILABLE_DNS[$((DNS2-1))]}
+read -p "Primary DNS: " D1
+read -p "Secondary DNS: " D2
 
-echo -e "\n🔥 DNS انتخاب شده:"
-echo -e "Primary: $PRIMARY_DNS"
-echo -e "Secondary: $SECONDARY_DNS"
+PRIMARY_DNS=${DNS_LIST[$((D1-1))]}
+SECONDARY_DNS=${DNS_LIST[$((D2-1))]}
 
-# ==================== Backup Files ====================
-sudo cp /etc/resolv.conf /etc/resolv.conf.bak || true
-sudo cp /etc/apt/sources.list /etc/sources.list.bak || true
+echo -e "\n🚀 Enabling TCP BBR..."
 
-# ==================== Apply Mirror ====================
-sudo tee /etc/apt/sources.list >/dev/null <<EOF
+cat <<EOF >> /etc/sysctl.conf
+net.core.default_qdisc=fq
+net.ipv4.tcp_congestion_control=bbr
+EOF
+
+sysctl -p
+
+echo -e "\n💾 Applying configs..."
+
+cp /etc/apt/sources.list /etc/apt/sources.list.bak || true
+
+cat <<EOF > /etc/apt/sources.list
 deb $WORKING_MIRROR $UBUNTU_CODENAME main restricted universe multiverse
 deb $WORKING_MIRROR $UBUNTU_CODENAME-updates main restricted universe multiverse
 deb $WORKING_MIRROR $UBUNTU_CODENAME-backports main restricted universe multiverse
 deb $WORKING_MIRROR $UBUNTU_CODENAME-security main restricted universe multiverse
 EOF
 
-# ==================== Apply DNS ====================
-sudo tee /etc/resolv.conf >/dev/null <<EOF
-nameserver $PRIMARY_DNS
-nameserver $SECONDARY_DNS
-EOF
+echo -e "nameserver $PRIMARY_DNS\nnameserver $SECONDARY_DNS" > /etc/resolv.conf
 
-# ==================== APT Boost ====================
-sudo tee /etc/apt/apt.conf.d/99boost >/dev/null <<EOF
-Acquire::Retries "3";
-Acquire::http::Pipeline-Depth "5";
-EOF
-
-echo -e "\n✅ Mirror و DNS اعمال شد و APT Boost فعال شد 👍"
-echo -e "📦 اجرا کنید:\n sudo apt update && sudo apt upgrade -y"
-echo -e "😈 GOD MODE ULTRA COMPLETE"
+echo -e "\n🔥 ${GREEN}GOD MODE PRO MAX ACTIVE 😈${RESET}"
+echo "Run: sudo apt update"
